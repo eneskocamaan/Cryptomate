@@ -1,37 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import FavoriteScreen from '../screens/FavoriteScreen';
+import SearchScreen from '../screens/SearchScreen';
 import CoinDetailScreen from '../screens/CoinDetailScreen';
+import { HomeStackParamList } from './HomeStackNavigator';
 
-export type FavoritesStackParamList = {
-  FavoriteScreen: undefined;
-  CoinDetails: {
-    id: string;
-    name: string;
-    image: string;
-    symbol: string;
-  };
-};
+const Stack = createNativeStackNavigator<HomeStackParamList>();
 
-const Stack = createNativeStackNavigator<FavoritesStackParamList>();
-
-const FavoriteStackNavigator = () => {
+const SearchStackNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name='FavoriteScreen'
-        component={FavoriteScreen}
+        name="SearchScreen"
+        component={SearchScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name='CoinDetails'
+        name="CoinDetails"
         component={CoinDetailScreen}
         options={({ route }) => {
-          const { id, name, image, symbol } = route.params;
+          const { id, name, image, symbol, price, change } = route.params;
 
           return {
             title: '',
@@ -39,9 +30,16 @@ const FavoriteStackNavigator = () => {
               backgroundColor: '#1A1A1D',
             },
             headerTintColor: '#fff',
-            headerTitle: () => {
-              return <HeaderTitle id={id} name={name} image={image} symbol={symbol} />;
-            },
+            headerTitle: () => (
+              <HeaderTitle
+                id={id}
+                name={name}
+                image={image}
+                symbol={symbol}
+                change={change}
+                price={price}
+              />
+            ),
           };
         }}
       />
@@ -54,24 +52,24 @@ const HeaderTitle = ({
   name,
   image,
   symbol,
+  change,
+  price,
 }: {
   id: string;
   name: string;
   image: string;
   symbol: string;
+  change: string;
+  price: number;
 }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const checkFavorite = async () => {
-      try {
-        const existing = await AsyncStorage.getItem('favorites');
-        const favorites = existing ? JSON.parse(existing) : [];
-        const exists = favorites.some((coin: any) => coin.id === id);
-        setIsFavorite(exists);
-      } catch (error) {
-        console.error('Favori kontrol hatası:', error);
-      }
+      const existing = await AsyncStorage.getItem('favorites');
+      const favorites = existing ? JSON.parse(existing) : [];
+      const exists = favorites.some((coin: any) => coin.id === id);
+      setIsFavorite(exists);
     };
     checkFavorite();
   }, [id]);
@@ -85,7 +83,7 @@ const HeaderTitle = ({
       if (isFavorite) {
         updatedFavorites = favorites.filter((coin: any) => coin.id !== id);
       } else {
-        updatedFavorites = [...favorites, { id, name, image, symbol }];
+        updatedFavorites = [...favorites, { id, name, image, symbol, change, price }];
       }
 
       await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
@@ -148,4 +146,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FavoriteStackNavigator;
+export default SearchStackNavigator;

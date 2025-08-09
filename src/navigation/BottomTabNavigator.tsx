@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import HomeStackNavigator from './HomeStackNavigator';
 import FavoriteStackNavigator from './FavoritesStackNavigator';
-import SettingScreen from '../screens/SettingScreen';
+import SearchStackNavigator from './SearchStackNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,12 +17,12 @@ const BottomTabNavigator = () => {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName ="";
 
-          if(route.name == "Home"){
+          if(route.name == "Ana Sayfa"){
             iconName = focused ? "home" : "home-outline"
-          }else if(route.name == "Favorite"){
+          }else if(route.name == "Favoriler"){
             iconName = focused ? "heart" : "heart-outline"
-          }else if(route.name == "Settings"){
-            iconName = focused ? "settings" : "settings-outline"
+          }else if(route.name == "Ara"){
+            iconName = focused ? "search" : "search-outline"
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -36,18 +36,18 @@ const BottomTabNavigator = () => {
       })}
     >
       <Tab.Screen
-      name = "Home"
+      name = "Ana Sayfa"
       component={HomeStackNavigator}
       options={{headerShown:false}}
       />
       <Tab.Screen
-      name = "Favorite"
-      component={FavoriteStackNavigator}
+      name = "Ara"
+      component={SearchStackNavigator}
       options={{headerShown:false}}
       />
       <Tab.Screen
-      name = "Settings"
-      component={SettingScreen}
+      name = "Favoriler"
+      component={FavoriteStackNavigator}
       options={{headerShown:false}}
       />
     </Tab.Navigator>

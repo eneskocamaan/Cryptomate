@@ -1,23 +1,46 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '../navigation/HomeStackNavigator';
 
 interface CoinCardProps {
+  id: string
   name: string;
-  price: string;
+  price: number;
   image: string;
   change: string;
   symbol: string;
 }
 
-const CoinCard: React.FC<CoinCardProps> = ({ name, price, image, change, symbol }) => {
+const CoinCard = ({ id, name, price=0, image, change, symbol } : CoinCardProps) => {
+
+  const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
+
   const getChangeColor = () => {
-    if (change.startsWith('+')) return '#4ADE80';
-    if (change.startsWith('-')) return '#F87171';
-    return '#A3A3A3';
-  };
+  const numericChange = parseFloat(change);
+
+  if (numericChange > 0) return '#4CAF50';
+  if (numericChange < 0) return '#F44336';
+  return '#A3A3A3';
+};
+
+const getFormattedChange = () => {
+  const numericChange = parseFloat(change);
+
+  if (numericChange > 0) return `+${numericChange.toFixed(2)}%`;
+  if (numericChange < 0) return `${numericChange.toFixed(2)}%`;
+  return '0.00%';
+};
+
+  const handlePress = () =>{
+    navigation.navigate("CoinDetails", {id ,name,image,symbol,price,change});
+  }
+
+
 
   return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.card}>
+    <TouchableOpacity activeOpacity={0.7} onPress={handlePress} style={styles.card}>
       <Image source={{ uri: image }} style={styles.coinImage} />
       <View style={styles.textContainer}>
         <View style={styles.row}>
@@ -26,16 +49,14 @@ const CoinCard: React.FC<CoinCardProps> = ({ name, price, image, change, symbol 
             <Text style={styles.coinSymbol}>{symbol.toUpperCase()}</Text>
           </View>
           <View style={styles.priceChange}>
-            <Text style={styles.coinPrice}>{price}</Text>
-            <Text style={[styles.coinChange, { color: getChangeColor() }]}>{change}</Text>
+            <Text style={styles.coinPrice}>₺{price.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text>
+            <Text style={[styles.coinChange, { color: getChangeColor()}]}>{getFormattedChange()}</Text>
           </View>
         </View>
       </View>
     </TouchableOpacity>
   );
 };
-
-export default CoinCard;
 
 const styles = StyleSheet.create({
   card: {
@@ -51,7 +72,6 @@ const styles = StyleSheet.create({
   coinImage: {
     width: 48,
     height: 48,
-    backgroundColor: '#242424',
     borderRadius: 48,
     marginRight: 16,
   },
@@ -71,6 +91,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+     maxWidth: 160,
   },
   coinSymbol: {
     color: '#aaa',
@@ -91,3 +112,5 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 });
+
+export default CoinCard;
